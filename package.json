@@ -1,0 +1,23 @@
+{
+  "name": "sillycat-passport-saml2",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "dependencies": {
+    "passport-saml": "^1.3.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luohuazju/sillycat-passport-saml2.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/luohuazju/sillycat-passport-saml2/issues"
+  },
+  "homepage": "https://github.com/luohuazju/sillycat-passport-saml2#readme"
+}
