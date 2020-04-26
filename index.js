@@ -1,6 +1,7 @@
 const express = require('express');
 const passport = require('passport');
 const SamlStrategy = require('passport-saml').Strategy;
+const fs = require('fs');
 
 const app = express();
 app.use(express.static(__dirname));
@@ -55,4 +56,7 @@ app.post("/saml2/auth0/callback",
     	res.redirect('/success');
   	}
 );
+
+const port = process.env.PORT || 3000;
+app.listen(port , () => console.log('App listening on port ' + port));
 
