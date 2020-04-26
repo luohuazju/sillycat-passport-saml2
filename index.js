@@ -6,14 +6,16 @@ const bodyParser = require('body-parser');
 
 const app = express();
 app.use(express.static(__dirname));
-app.use(passport.initialize());
-app.use(passport.session());
+
 const expressSession = require('express-session')({
   secret: 'mydemosecret',
   resave: false,
-  saveUninitialized: false
+  saveUninitialized: true
 });
 app.use(expressSession);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 passport.use(new SamlStrategy(
     {
@@ -43,7 +45,10 @@ passport.deserializeUser(function(obj, cb) {
 });
 
 app.get('/', (req, res) => res.sendFile('html/auth.html', { root : __dirname}));
-app.get('/success', (req, res) => res.send("You have successfully logged in"));
+app.get('/success', (req, res) => {
+	console.log("success :" + JSON.stringify(req.user));
+	res.send(req.user.userName + ", You have successfully logged in")
+});
 app.get('/error', (req, res) => res.send("error logging in"));
 
 app.get('/saml2/auth0',
