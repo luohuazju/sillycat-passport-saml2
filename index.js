@@ -2,6 +2,7 @@ const express = require('express');
 const passport = require('passport');
 const SamlStrategy = require('passport-saml').Strategy;
 const fs = require('fs');
+const bodyParser = require('body-parser');
 
 const app = express();
 app.use(express.static(__dirname));
@@ -22,9 +23,15 @@ passport.use(new SamlStrategy(
         // Identity Provider's public key
         cert: fs.readFileSync("./cert/saml2-auth0.pem", "utf8"),
     },
-    (profile, cb) => {
-        console.log("Profile : ", profile);
-        const user = { id: profile["nameID"], userName: profile["http://schemas.auth0.com/nickname"] };
+    function(profile, cb) {
+        //const user = { id: profile["nameID"], userName: profile["http://schemas.auth0.com/nickname"] };
+        const user = { 
+        	id: 12, 
+        	email: "luohuazju@gmail.com", 
+        	displayName: "Hua Luo",
+        	firstName: "Hua",
+        	lastName: "Luo"
+        };
         return cb(null, user);
     }
 ));
@@ -40,21 +47,20 @@ passport.deserializeUser(function(obj, cb) {
 app.get('/', (req, res) => res.sendFile('html/auth.html', { root : __dirname}));
 app.get('/success', (req, res) => res.send("You have successfully logged in"));
 app.get('/error', (req, res) => res.send("error logging in"));
-app.get("/saml2/auth0",
-    passport.authenticate("saml", (err, profile) => {  
-        console.log("Profile : ", profile);
-    })
+
+app.get('/saml2/auth0',
+	passport.authenticate("saml",
+	  {
+	    successRedirect: '/success',
+	    failureRedirect: '/error'
+	  })
 );
-app.post("/saml2/auth0/callback",
-    (req, res, next) => {
-        passport.authenticate("saml", { session: false }, (err, user) => {
-            req.user = user;
-            next();
-        })(req, res, next);
-    },
-    function(req, res) {
-    	res.redirect('/success');
-  	}
+app.post('/saml2/auth0/callback',
+  bodyParser.urlencoded({ extended: false }),
+  passport.authenticate('saml', { failureRedirect: '/error', failureFlash: true }),
+  function(req, res) {
+    res.redirect('/success');
+  }
 );
 
 const port = process.env.PORT || 3000;
