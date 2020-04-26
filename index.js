@@ -24,14 +24,12 @@ passport.use(new SamlStrategy(
         cert: fs.readFileSync("./cert/saml2-auth0.pem", "utf8"),
     },
     function(profile, cb) {
-        //const user = { id: profile["nameID"], userName: profile["http://schemas.auth0.com/nickname"] };
         const user = { 
-        	id: 12, 
-        	email: "luohuazju@gmail.com", 
-        	displayName: "Hua Luo",
-        	firstName: "Hua",
-        	lastName: "Luo"
+        	id: profile["nameID"], 
+        	email: profile["http://schemas.xmlsoap.org/ws/2005/05/identity/claims/emailaddress"], 
+        	userName: profile["http://schemas.auth0.com/nickname"]
         };
+        console.log("user:" + JSON.stringify(user));
         return cb(null, user);
     }
 ));
@@ -59,6 +57,7 @@ app.post('/saml2/auth0/callback',
   bodyParser.urlencoded({ extended: false }),
   passport.authenticate('saml', { failureRedirect: '/error', failureFlash: true }),
   function(req, res) {
+  	console.log("---req user:" + JSON.stringify(req.user));
     res.redirect('/success');
   }
 );
