@@ -3,12 +3,9 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "dependencies": {
-    "passport-saml": "^1.3.3"
-  },
-  "devDependencies": {},
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node -r dotenv/config index.js"
   },
   "repository": {
     "type": "git",
@@ -19,5 +16,11 @@
   "bugs": {
     "url": "https://github.com/luohuazju/sillycat-passport-saml2/issues"
   },
-  "homepage": "https://github.com/luohuazju/sillycat-passport-saml2#readme"
+  "homepage": "https://github.com/luohuazju/sillycat-passport-saml2#readme",
+  "dependencies": {
+    "passport-saml": "^1.3.3"
+  },
+  "devDependencies": {
+    "dotenv": "^8.2.0"
+  }
 }
