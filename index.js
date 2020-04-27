@@ -58,6 +58,27 @@ passport.use(new SamlStrategy(
     }
 ));
 
+//ping
+passport.use(new SamlStrategy(
+    {
+        path: "/saml2/ping/callback",
+        entryPoint: process.env.PING_SAML2_URL,
+        issuer: process.env.PING_SAML2_ISSUER,
+        // Identity Provider's public key
+        cert: fs.readFileSync("./cert/saml2-ping.crt", "utf8"),
+    },
+    function(profile, cb) {
+        console.log("profile:" + JSON.stringify(profile));
+        const user = { 
+          id: profile["nameID"], 
+          email: profile["email_address"], 
+          userName: profile["user_name"]
+        };
+        console.log("user:" + JSON.stringify(user));
+        return cb(null, user);
+    }
+));
+
 
 passport.serializeUser(function(user, cb) {
   cb(null, user);
@@ -100,6 +121,23 @@ app.get('/saml2/onelogin',
     })
 );
 app.post('/saml2/onelogin/callback',
+  bodyParser.urlencoded({ extended: false }),
+  passport.authenticate('saml', { failureRedirect: '/error', failureFlash: true }),
+  function(req, res) {
+    console.log("---req user:" + JSON.stringify(req.user));
+    res.redirect('/success');
+  }
+);
+
+//ping
+app.get('/saml2/ping',
+  passport.authenticate("saml",
+    {
+      successRedirect: '/success',
+      failureRedirect: '/error'
+    })
+);
+app.post('/saml2/ping/callback',
   bodyParser.urlencoded({ extended: false }),
   passport.authenticate('saml', { failureRedirect: '/error', failureFlash: true }),
   function(req, res) {
