@@ -17,6 +17,7 @@ app.use(expressSession);
 app.use(passport.initialize());
 app.use(passport.session());
 
+//auth0
 passport.use(new SamlStrategy(
     {
         path: "/saml2/auth0/callback",
@@ -36,6 +37,28 @@ passport.use(new SamlStrategy(
     }
 ));
 
+//onelogin
+passport.use(new SamlStrategy(
+    {
+        path: "/saml2/onelogin/callback",
+        entryPoint: process.env.ONELOGIN_SAML2_URL,
+        issuer: process.env.ONELOGIN_SAML2_ISSUER,
+        // Identity Provider's public key
+        cert: fs.readFileSync("./cert/saml2-onelogin.pem", "utf8"),
+    },
+    function(profile, cb) {
+        console.log("profile:" + JSON.stringify(profile));
+        const user = { 
+          id: profile["nameID"], 
+          email: profile["Email Address (email)"], 
+          userName: profile["First Name (firstname)"] + profile["Last Name (lastname)"]
+        };
+        console.log("user:" + JSON.stringify(user));
+        return cb(null, user);
+    }
+));
+
+
 passport.serializeUser(function(user, cb) {
   cb(null, user);
 });
@@ -51,6 +74,7 @@ app.get('/success', (req, res) => {
 });
 app.get('/error', (req, res) => res.send("error logging in"));
 
+//auth0
 app.get('/saml2/auth0',
 	passport.authenticate("saml",
 	  {
@@ -63,6 +87,23 @@ app.post('/saml2/auth0/callback',
   passport.authenticate('saml', { failureRedirect: '/error', failureFlash: true }),
   function(req, res) {
   	console.log("---req user:" + JSON.stringify(req.user));
+    res.redirect('/success');
+  }
+);
+
+//onelogin
+app.get('/saml2/onelogin',
+  passport.authenticate("saml",
+    {
+      successRedirect: '/success',
+      failureRedirect: '/error'
+    })
+);
+app.post('/saml2/onelogin/callback',
+  bodyParser.urlencoded({ extended: false }),
+  passport.authenticate('saml', { failureRedirect: '/error', failureFlash: true }),
+  function(req, res) {
+    console.log("---req user:" + JSON.stringify(req.user));
     res.redirect('/success');
   }
 );
